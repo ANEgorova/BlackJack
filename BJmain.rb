@@ -49,20 +49,27 @@ def init_state(player, is_user)
   player['hand'] = hand
 end
 
-def print_scores(is_first)
+def print_scores
   if $is_first
     puts "Dealer: #{$dealer['hand'].take 1}; Score: #{$dealer['score']}"
   else
     puts "Dealer: #{$dealer['hand']}; Score: #{$dealer['score']}"
   end
   puts "You: #{$user['hand']}; Score: #{$user['score']}"
-  if $is_first
-
-  end
 end
 
 def print_options_choosing
-  puts 'Choose one option: [1]Hit [2]Stand'
+  options_string = "Choose one option: [1]Hit [2]Stand"
+  option_index = 3
+  if $user['cards'].size == 2
+    options_string += " [#{option_index}]Double_down [#{option_index + 1}]Surrender"
+    option_index += 2
+  end
+
+  if $user['hand'][0] == $user['hand'][1]
+    options_string += " [#{option_index}]Split"
+  end
+  puts options_string
   puts '(Print number or word)'
 end
 
@@ -73,7 +80,8 @@ def add_new_card(player)
   player['hand'] << prettify_card(new_card)
   update_sum(player, new_card)
   $current_index += 1
-  puts "New card is: #{new_card}"
+  puts '---------------'
+  puts "New card is: #{prettify_card(new_card)}"
 end
 
 def update_sum(player, card)
@@ -114,13 +122,12 @@ def dealer_game
   puts "Your score is #{$user['score']}!"
   puts "Dealer's turn:"
   update_sum($dealer, $dealer['cards'][1])
-  print_scores($is_first)
-
+  print_scores
   while $dealer['score'] < 17
+    sleep(1)
     add_new_card($dealer)
     puts "Your score: #{$user['score']}; Dealer score: #{$dealer['score']}"
   end
-
   get_winner
 end
 
@@ -129,19 +136,33 @@ def play_again
   new_game_decision = gets.chomp
   if new_game_decision.match('y|Y|Yes')
     init_table
-    game
+    game($user)
   else
     puts 'You money: 0'
-    print 'Goodbye!'
+    print 'Thanks for game! Goodbye!'
     return false
   end
 end
 
-def game
-  # TODO: Check BlackJack
+def game(user)
+  if user['score'] == 21
+    puts 'You got 21!'
+    puts "Dealer's second card:"
+    update_sum($dealer, $dealer['cards'][1])
+    $is_first = false
+    print_scores
+    if $dealer['score'] == 21
+      puts 'PUSH! NOBODY WINS!'
+    else
+      puts 'BLACK JACK!'
+    end
+    unless play_again
+      return
+    end
+  end
   while true
-    print_scores($is_first)
-    if $user['score'] == 21
+    print_scores
+    if user['score'] == 21
       dealer_game
       unless play_again
         break
@@ -150,9 +171,9 @@ def game
     print_options_choosing
     option = gets.chomp
     if option.match('1|Hit')
-      add_new_card($user)
-      if $user['score'] > $winner_score
-        puts "Your score is: #{$user['score']}"
+      add_new_card(user)
+      if user['score'] > $winner_score
+        puts "Your score is: #{user['score']}"
         puts 'YOU LOSE! DEALER WIN'
         unless play_again
           break
@@ -165,9 +186,49 @@ def game
       unless play_again
         break
       end
+    elsif option.match('3|Double_down')
+      # put into function double_down game
+      puts 'You increased your bet by 100%!'
+      puts 'Now your money is: 0'
+      add_new_card(user)
+      if user['score'] > $winner_score
+        puts "Your score is: #{user['score']}"
+        puts 'YOU LOSE! DEALER WIN'
+        unless play_again
+          break
+        end
+      else
+        dealer_game
+        unless play_again
+          break
+        end
+      end
+    elsif option.match('4|Surrender')
+      puts 'House returned HOW MUCH to you!'
+      unless play_again
+        break
+      end
+    elsif option.match('5|Split')
+      split_user = Hash.new
+      split_user['cards'] << user['cards'].pop
+      split_user['hand'] << user['hand'].pop
+      split_user['score'] = 0
+      update_sum(split_user, split_user['cards'][0])
+      user['score'] = 0
+      update_sum(user, user['cards'][0])
+      puts 'GAME FOR ONE HAND:'
+      game(user)
+
+      puts 'GAME FOR ANOTHER HAND:'
+      game(split_user)
+    else
+      puts 'You entered wrong option! Try again!'
+      next
     end
   end
 end
 
 init_table
-game
+puts "Your money is 0"
+puts "Make bet"
+game($user)
