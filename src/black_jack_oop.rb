@@ -1,5 +1,19 @@
 #!/usr/bin/env ruby
 
+# This is a BlackJack game
+# Main function - start_game (you have to create table before)
+# Card deck represented by array of 52 numbers from 1 to 52 ($cards)
+# Before game this array generated
+# Cards get their natural value in Card::initialize
+# User has 5 options: hit, stand, double_down, surrender, split
+# After dealer reached 17 by the fastest way (ace = 11), game is finished
+# See more documentation before classes and methods
+
+
+# Class card describes one card for game
+# value: Number cards - their natural value;
+# the jack, queen, and king - 10; aces - either 1 or 11
+# view: how card represented (2-10, "J", "Q", "K", "A")
 class Card
   attr_reader :value, :view
   def initialize(idx)
@@ -23,6 +37,11 @@ class Card
   end
 end
 
+# Class for all players in game (player or dealer)
+# cards: array of number representation of a card
+# hand: array of cards' view
+# money: current amount
+# ace_score: alternative score for ace considered as 1
 class User
   attr_accessor :cards, :hand, :money, :bet, :score, :has_ace, :ace_score
   def initialize
@@ -87,7 +106,7 @@ class User
         @money -= 500
       else
         puts 'You entered wrong bet! Try again!'
-        main
+        start_game
     end
     puts "You made #{@bet}$ bet!"
   end
@@ -112,6 +131,7 @@ class User
   end
 end
 
+# Class for game table
 class Table
   attr_accessor :dealer, :player, :is_first_cards
   WINNER_SCORE = 21
@@ -172,7 +192,7 @@ class Table
   end
 
   def get_diff(score)
-    return 21 - score
+    21 - score
   end
 
   def get_winner(player)
@@ -191,6 +211,8 @@ class Table
     end
   end
 
+  # Method implements dealer game
+  # Dealer reveal his second card and hit till his score < 17
   def dealer_game(player)
     @is_first_cards = false
     puts "Your score is #{player.score}!"
@@ -209,7 +231,7 @@ class Table
     puts 'Do you want to play again? [y, Y, Yes, yes; n, N, No, no]'
     new_game_decision = gets.chomp
     if new_game_decision.match('y|Y|Yes')
-      main
+      start_game
     else
       puts "Your money now is: #{@player.money}$"
       print 'Thanks for a game! Goodbye!'
@@ -224,6 +246,8 @@ class Table
     player.open_new_card
   end
 
+  # Method implements Split options
+  # Just process game for two hands by turn
   def option_split(player)
     player.cards.pop
     player.hand.pop
@@ -236,13 +260,17 @@ class Table
     game(split_player)
   end
 
-  def game(player)
+  # Methods implements directly game
+  # Choose option and change score and money
+  def round(player)
+    # if black jack from first 2 cards
     if player.score == 21
       case_black_jack(player)
       unless play_again
         return
       end
     end
+
     while true
       print_scores(player)
       if player.score == 21
@@ -255,6 +283,7 @@ class Table
       option = gets.chomp
       if option.match('1|Hit')
         player.open_new_card
+        # if player got > 21 - game is over
         if player.score. > WINNER_SCORE
           if player.has_ace and player.ace_score < WINNER_SCORE
             player.score, player.ace_score = player.ace_score, player.score
@@ -306,12 +335,13 @@ class Table
   end
 end
 
-def main
+def start_game
   $game_table.first_init
   bet = $game_table.print_bet_choosing
   $game_table.player.process_bet(bet)
-  $game_table.game($game_table.player)
+  $game_table.round($game_table.player)
 end
 
 $game_table = Table.new
-main
+puts 'Welcome to BlackJack!'
+start_game
