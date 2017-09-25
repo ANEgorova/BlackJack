@@ -44,7 +44,7 @@ class User
     for counter in 0..1
       add_new_card
       if counter == 0 or is_player
-        self.update_score
+        update_score
       end
     end
   end
@@ -70,24 +70,24 @@ class User
 
   def process_bet (bet)
     case bet
-      when 1
+      when 1, 10
         @bet = 10
         @money -= 10
-      when 2
+      when 2, 25
         @bet = 25
         @money -= 25
-      when 3
+      when 3, 100
         @bet = 100
         @money -= 100
-      when 4
+      when 4, 200
         @bet = 200
         @money -= 200
-      when 5
+      when 5, 500
         @bet = 500
         @money -= 500
       else
-        @bet = bet
-        @money -= bet
+        puts 'You entered wrong bet! Try again!'
+        main
     end
     puts "You made #{@bet}$ bet!"
   end
@@ -104,8 +104,8 @@ class User
   end
 
   def open_new_card
-    self.add_new_card
-    self.update_score
+    add_new_card
+    update_score
     puts '---------------'
     puts "New card is: #{@hand.last}"
     puts '---------------'
@@ -140,7 +140,7 @@ class Table
     puts "Dealer's second card:"
     @dealer.update_score
     @is_first_cards = false
-    self.print_scores(player)
+    print_scores(player)
     if @dealer.score == 21
       puts 'PUSH! NOBODY WINS!'
       player.update_money(false, true)
@@ -209,9 +209,7 @@ class Table
     puts 'Do you want to play again? [y, Y, Yes, yes; n, N, No, no]'
     new_game_decision = gets.chomp
     if new_game_decision.match('y|Y|Yes')
-      first_init
-      bet = print_bet_choosing
-      @player.process_bet(bet)
+      main
     else
       puts "Your money now is: #{@player.money}$"
       print 'Thanks for a game! Goodbye!'
@@ -238,19 +236,18 @@ class Table
     game(split_player)
   end
 
-  # TODO: parameters (user -> player)
   def game(player)
     if player.score == 21
-      self.case_black_jack(player)
-      unless self.play_again
+      case_black_jack(player)
+      unless play_again
         return
       end
     end
     while true
-      self.print_scores(player)
+      print_scores(player)
       if player.score == 21
-        self.dealer_game(player)
-        unless self.play_again
+        dealer_game(player)
+        unless play_again
           break
         end
       end
@@ -266,7 +263,7 @@ class Table
             puts "Your score is: #{player.score}"
             puts 'YOU LOSE! DEALER WIN'
             player.update_money(false, false)
-            unless self.play_again
+            unless play_again
               break
             end
           end
@@ -274,8 +271,8 @@ class Table
           next
         end
       elsif option.match('2|Stand')
-        self.dealer_game(player)
-        unless self.play_again
+        dealer_game(player)
+        unless play_again
           break
         end
       elsif option.match('3|Double_down')
@@ -284,19 +281,19 @@ class Table
           puts "Your score is: #{player.score}"
           puts 'YOU LOSE! DEALER WIN'
           player.update_money(false, false)
-          unless self.play_again
+          unless play_again
             break
           end
         else
-          self.dealer_game(player)
-          unless self.play_again
+          dealer_game(player)
+          unless play_again
             break
           end
         end
       elsif option.match('4|Surrender')
         puts "House returned #{player.bet}$ to you!"
         player.update_money(false, true)
-        unless self.play_again
+        unless play_again
           break
         end
       elsif option.match('5|Split')
@@ -310,11 +307,11 @@ class Table
 end
 
 def main
-  game_table = Table.new
-  game_table.first_init
-  bet = game_table.print_bet_choosing
-  game_table.player.process_bet(bet)
-  game_table.game(game_table.player)
+  $game_table.first_init
+  bet = $game_table.print_bet_choosing
+  $game_table.player.process_bet(bet)
+  $game_table.game($game_table.player)
 end
 
+$game_table = Table.new
 main
