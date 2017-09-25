@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 # Documentation: HARD OR SOFT 17 (stand anyway)
+
 $winner_score = 21
 $is_first_cards = true
 $current_index = 0
@@ -297,7 +298,6 @@ def main
   process_bet($user, bet)
   game($user)
 end
-
 puts 'Welcome to BlackJack'
 puts 'Your money now is 1000$'
 main
