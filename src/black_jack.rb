@@ -9,10 +9,8 @@
 # After dealer reached 17 by the fastest way (ace = 11), game is finished
 # See more documentation before classes and methods
 
-
 # Class card describes one card for game
-# value: Number cards - their natural value;
-# the jack, queen, and king - 10; aces - either 1 or 11
+# value: Number cards - their natural value, jack, queen, king - 10; aces - 1 or 11
 # view: how card represented (2-10, "J", "Q", "K", "A")
 class Card
   attr_reader :value, :view
@@ -235,7 +233,7 @@ class Table
     else
       puts "Your money now is: #{@player.money}$"
       print 'Thanks for a game! Goodbye!'
-      return false
+      false
     end
   end
 
@@ -287,7 +285,6 @@ class Table
         if player.score. > WINNER_SCORE
           if player.has_ace and player.ace_score < WINNER_SCORE
             player.score, player.ace_score = player.ace_score, player.score
-            next
           else
             puts "Your score is: #{player.score}"
             puts 'YOU LOSE! DEALER WIN'
@@ -296,9 +293,8 @@ class Table
               break
             end
           end
-        else
-          next
         end
+        next
       elsif option.match('2|Stand')
         dealer_game(player)
         unless play_again
@@ -307,17 +303,18 @@ class Table
       elsif option.match('3|Double_down')
         option_double_down(player)
         if player.score > WINNER_SCORE
-          puts "Your score is: #{player.score}"
-          puts 'YOU LOSE! DEALER WIN'
-          player.update_money(false, false)
-          unless play_again
-            break
+          if player.has_ace and player.ace_score < WINNER_SCORE
+            player.score = player.ace_score
+            dealer_game(player)
+          else
+            puts "Your score is: #{player.score}"
+            puts 'YOU LOSE! DEALER WIN'
+            player.update_money(false, false)
           end
-        else
-          dealer_game(player)
-          unless play_again
-            break
-          end
+        end
+        dealer_game(player)
+        unless play_again
+          break
         end
       elsif option.match('4|Surrender')
         puts "House returned #{player.bet}$ to you!"
