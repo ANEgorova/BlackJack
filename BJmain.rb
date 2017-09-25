@@ -2,7 +2,6 @@
 
 # Documentation: HARD OR SOFT 17 (stand anyway)
 $winner_score = 21
-# TODO: change variable name
 $is_first_cards = true
 $current_index = 0
 $cards_indexes = Array.new
@@ -51,11 +50,7 @@ def init_state(player, is_user)
 end
 
 def print_scores(user)
-  if $is_first_cards
-    puts "Dealer: #{$dealer['hand'].take 1}; Score: #{$dealer['score']}"
-  else
-    puts "Dealer: #{$dealer['hand']}; Score: #{$dealer['score']}"
-  end
+  puts "Dealer: #{$is_first_cards ? ($dealer['hand'].take 1) : $dealer['hand']}; Score: #{$dealer['score']}"
   puts "You: #{user['hand']}; Score: #{user['score']}#{user['has_ace'] ? '/' + (user['ace_score'].to_s) :''}"
 end
 
@@ -111,10 +106,10 @@ end
 
 def get_winner(user)
   if $dealer['score'] == user['score']
-    puts 'Push! NOBODY LOSE!'
+    puts 'PUSH! NOBODY LOSE!'
     update_money(user, false, true)
   elsif $dealer['score'] > 21
-    puts 'YOU WIN! DEALER LOSE!' # print score????
+    puts 'YOU WIN! DEALER LOSE!'
     update_money(user, true, false)
   elsif get_diff($dealer) < get_diff(user)
     puts 'YOU LOSE! DEALER WIN'
@@ -221,7 +216,6 @@ def option_split(user)
   user['score'] /= 2
   user['ace_score'] /= 2
   split_user = user
-
   puts 'GAME FOR ONE HAND:'
   game(user)
   puts 'GAME FOR ANOTHER HAND:'
@@ -268,7 +262,6 @@ def game(user)
         break
       end
     elsif option.match('3|Double_down')
-      # put into function double_down game
       option_double_down(user)
       if user['score'] > $winner_score
         puts "Your score is: #{user['score']}"
