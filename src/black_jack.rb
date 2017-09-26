@@ -16,11 +16,11 @@
 class Card
   attr_reader :view
   def initialize(idx)
-    value = idx / 4 + (idx % 4 == 0 ? 1 : 2)
-    @view = get_view_by_value(value)
+    @view = get_view_by_index(idx)
   end
 
-  def get_view_by_value(value)
+  def get_view_by_index(idx)
+    value = idx / 4 + (idx % 4 == 0 ? 1 : 2)
     case
       when value <= 10
         return value.to_s
@@ -74,7 +74,7 @@ class User
     card_value = @hand.last
     if card_value == 'A'
       @has_ace = true
-      @ace_score = @score + 1
+      @ace_score = @ace_score + 1
       @score += 11
     else
       int_value = card_value.to_i
@@ -342,10 +342,6 @@ def start_game
   $game_table.round($game_table.player)
 end
 
-$game_table = Table.new
 puts 'Welcome to BlackJack!'
-
-$debug = false
-if $debug
-  start_game
-end
+$game_table = Table.new
+start_game
