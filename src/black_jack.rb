@@ -11,7 +11,6 @@
 # See more documentation before classes and methods
 
 # Class card describes one card for game
-# value: Number cards - their natural value, jack, queen, king - 11-13; aces - 14
 # view: how card represented (2-10, "J", "Q", "K", "A")
 class Card
   attr_reader :view
@@ -19,6 +18,8 @@ class Card
     @view = get_view_by_index(idx)
   end
 
+  # value: card's number. 1-10 - their natural value,
+  # jack, queen, king - 11-13; aces - 14
   def get_view_by_index(idx)
     value = idx / 4 + (idx % 4 == 0 ? 1 : 2)
     case
