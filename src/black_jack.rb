@@ -297,41 +297,32 @@ class Table
       option = gets.chomp
       if option.match('1|Hit')
         player.open_new_card
-        # if player got > 21 - game is over
-        if player.score. > WINNER_SCORE
-          if player.has_ace and player.ace_score <= WINNER_SCORE
-            player.score, player.ace_score = player.ace_score, player.score
-          else
-            puts "Your score is: #{player.score}"
-            puts 'YOU LOSE! DEALER WIN'
-            player.update_money(false, false)
-            unless play_again
-              break
-            end
-          end
+        if player.has_ace and player.ace_score <= WINNER_SCORE
+          player.score, player.ace_score = player.ace_score, player.score
         end
-        next
+        # if player got > 21 - game is over
+        if player.score > WINNER_SCORE
+          puts "Your score is: #{player.score}"
+          puts 'YOU LOSE! DEALER WIN'
+          player.update_money(false, false)
+        else
+          next
+        end
       elsif option.match('2|Stand')
         dealer_game(player)
-        unless play_again
-          break
-        end
       elsif option.match('3|Double_down')
         option_double_down(player)
-        unless play_again
-          break
-        end
       elsif option.match('4|Surrender')
         puts "House returned #{player.bet}$ to you!"
         player.update_money(false, true)
-        unless play_again
-          break
-        end
       elsif option.match('5|Split')
         option_split(player)
       else
         puts 'You entered wrong option! Try again!'
         next
+      end
+      unless play_again
+        break
       end
     end
   end
