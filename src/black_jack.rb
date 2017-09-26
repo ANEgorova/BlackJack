@@ -2,7 +2,7 @@
 
 # This is a BlackJack game
 # Main function - start_game (you have to create table before)
-# Card deck represented by array of 52 numbers from 1 to 52 ($cards)
+# Card deck represented by array of 52 numbers from 1 to 52 ($deck)
 # Before game this array generated
 # $current_index - global index in card deck
 # Cards get their natural value in Card::initialize (don't care about suit)
@@ -11,13 +11,13 @@
 # See more documentation before classes and methods
 
 # Class card describes one card for game
-# value: Number cards - their natural value, jack, queen, king - 10; aces - 1 or 11
+# value: Number cards - their natural value, jack, queen, king - 11-13; aces - 14
 # view: how card represented (2-10, "J", "Q", "K", "A")
 class Card
-  attr_reader :value, :view
+  attr_reader :view
   def initialize(idx)
-    @value = idx / 4 + (idx % 4 == 0 ? 1 : 2)
-    @view = get_view_by_value(@value)
+    value = idx / 4 + (idx % 4 == 0 ? 1 : 2)
+    @view = get_view_by_value(value)
   end
 
   def get_view_by_value(value)
@@ -37,14 +37,12 @@ class Card
 end
 
 # Class for all players in game (player or dealer)
-# cards: array of number representation of a card
 # hand: array of cards' view
 # money: current amount
 # ace_score: alternative score for ace considered as 1
 class User
-  attr_accessor :cards, :hand, :money, :bet, :score, :has_ace, :ace_score
+  attr_accessor :hand, :money, :bet, :score, :has_ace, :ace_score
   def initialize
-    @cards = Array.new
     @hand = Array.new
     @money = 1000
     @bet = 0
@@ -54,7 +52,6 @@ class User
   end
 
   def first_init(is_player)
-    @cards.clear
     @hand.clear
     @score = 0
     @has_ace = false
@@ -68,21 +65,27 @@ class User
   end
 
   def add_new_card
-    new_card = Card.new($cards[$current_index])
-    @cards << new_card.value
+    new_card = Card.new($deck[$current_index])
     @hand << new_card.view
     $current_index += 1
   end
 
   def update_score
-    card_value = @cards.last
-    if card_value == 14
+    card_value = @hand.last
+    if card_value == 'A'
       @has_ace = true
       @ace_score = @score + 1
       @score += 11
     else
-      @score += card_value < 10 ? card_value : 10
-      @ace_score += card_value < 10 ? card_value : 10
+      int_value = card_value.to_i
+      case
+        when int_value == 0
+          @score += 10
+          @ace_score += 10
+        else
+          @score += int_value
+          @ace_score += int_value
+      end
     end
   end
 
@@ -148,7 +151,7 @@ class Table
   end
 
   def first_init
-    $cards = (1..52).to_a.sample 52
+    $deck = (1..52).to_a.sample 52
     @is_first_cards = true
     @player.first_init(true)
     @dealer.first_init(false)
@@ -178,7 +181,7 @@ class Table
   def print_options_choosing(player)
     options_string = 'Choose one option: [1]Hit [2]Stand'
     option_index = 3
-    if player.cards.size == 2
+    if player.hand.size == 2
       options_string += " [#{option_index}]Double_down [#{option_index + 1}]Surrender"
       option_index += 2
     end
@@ -248,15 +251,14 @@ class Table
   # Method implements Split options
   # Just process game for two hands by turn
   def option_split(player)
-    player.cards.pop
     player.hand.pop
     player.score /= 2
     player.ace_score /= 2
     split_player = player
     puts 'GAME FOR ONE HAND:'
-    game(player)
+    round(player)
     puts 'GAME FOR ANOTHER HAND:'
-    game(split_player)
+    round(split_player)
   end
 
   # Methods implements directly game
@@ -342,4 +344,8 @@ end
 
 $game_table = Table.new
 puts 'Welcome to BlackJack!'
-start_game
+
+$debug = false
+if $debug
+  start_game
+end
