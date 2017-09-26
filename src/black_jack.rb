@@ -247,6 +247,18 @@ class Table
     player.bet *= 2
     puts "Now your bet is: #{player.bet}"
     player.open_new_card
+    if player.score > WINNER_SCORE
+      if player.has_ace and player.ace_score < WINNER_SCORE
+        player.score = player.ace_score
+        dealer_game(player)
+      else
+        puts "Your score is: #{player.score}"
+        puts 'YOU LOSE! DEALER WIN'
+        player.update_money(false, false)
+      end
+    else
+      dealer_game(player)
+    end
   end
 
   # Method implements Split options
@@ -306,18 +318,6 @@ class Table
         end
       elsif option.match('3|Double_down')
         option_double_down(player)
-        if player.score > WINNER_SCORE
-          if player.has_ace and player.ace_score < WINNER_SCORE
-            player.score = player.ace_score
-            dealer_game(player)
-          else
-            puts "Your score is: #{player.score}"
-            puts 'YOU LOSE! DEALER WIN'
-            player.update_money(false, false)
-          end
-        else
-          dealer_game(player)
-        end
         unless play_again
           break
         end
