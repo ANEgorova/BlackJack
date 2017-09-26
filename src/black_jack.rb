@@ -287,7 +287,7 @@ class Table
         player.open_new_card
         # if player got > 21 - game is over
         if player.score. > WINNER_SCORE
-          if player.has_ace and player.ace_score < WINNER_SCORE
+          if player.has_ace and player.ace_score <= WINNER_SCORE
             player.score, player.ace_score = player.ace_score, player.score
           else
             puts "Your score is: #{player.score}"
@@ -315,8 +315,9 @@ class Table
             puts 'YOU LOSE! DEALER WIN'
             player.update_money(false, false)
           end
+        else
+          dealer_game(player)
         end
-        dealer_game(player)
         unless play_again
           break
         end
