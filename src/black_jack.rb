@@ -4,7 +4,8 @@
 # Main function - start_game (you have to create table before)
 # Card deck represented by array of 52 numbers from 1 to 52 ($cards)
 # Before game this array generated
-# Cards get their natural value in Card::initialize
+# $current_index - global index in card deck
+# Cards get their natural value in Card::initialize (don't care about suit)
 # User has 5 options: hit, stand, double_down, surrender, split
 # After dealer reached 17 by the fastest way (ace = 11), game is finished
 # See more documentation before classes and methods

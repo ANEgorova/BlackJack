@@ -1,2 +1,10 @@
-# require_relative "../src/BJmain"
-# require "unit"
+# require 'test/unit'
+require 'black_jack'
+
+class TestCard < Test::Unit::TestCase
+  def test_card_representation
+    card = Card.new(1)
+    puts card
+    assert(2, Card.new(1).value)
+  end
+end
