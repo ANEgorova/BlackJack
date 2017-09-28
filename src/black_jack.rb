@@ -297,11 +297,12 @@ class Table
       option = gets.chomp
       if option.match('1|Hit')
         player.open_new_card
-        if player.has_ace and player.ace_score <= WINNER_SCORE
-          player.score, player.ace_score = player.ace_score, player.score
-        end
         # if player got > 21 - game is over
         if player.score > WINNER_SCORE
+          if player.has_ace and player.ace_score <= WINNER_SCORE
+            player.score, player.ace_score = player.ace_score, player.score
+            next
+          end
           puts "Your score is: #{player.score}"
           puts 'YOU LOSE! DEALER WIN'
           player.update_money(false, false)
